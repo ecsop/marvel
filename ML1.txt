@@ -1,0 +1,137 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+df = pd.read_csv('uber.csv')
+df.head()
+
+df.info()
+
+
+df = df.drop(['Unnamed: 0','key'], axis = 1)
+
+df.info()
+
+
+df.shape
+
+
+df.dtypes
+
+
+df.describe()
+
+
+df.isnull().sum()
+
+
+df['dropoff_longitude'].fillna(value=df['dropoff_longitude'].mean(), inplace=True)
+df['dropoff_latitude'].fillna(value=df['dropoff_latitude'].mean(), inplace=True)
+
+
+df.isnull().sum()
+
+
+plt.figure(figsize=(16,9))
+sns.boxplot(data=df)
+
+
+from scipy import stats
+z_scores = np.abs(stats.zscore(df[['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'fare_amount']]))
+threshold = 3
+outliers = np.where(z_scores > threshold)
+df_cleaned = df[(z_scores <= threshold).all(axis=1)]
+
+# Filling missing values
+df_cleaned['dropoff_latitude'].fillna(value=df_cleaned['dropoff_latitude'].mean(), inplace=True)
+df_cleaned['dropoff_longitude'].fillna(value=df_cleaned['dropoff_longitude'].mean(), inplace=True)
+
+
+plt.figure(figsize=(16,9))
+sns.boxplot(data=df_cleaned)
+
+
+from scipy import stats
+z_scores = np.abs(stats.zscore(df[['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'fare_amount']]))
+threshold = 3
+outliers = np.where(z_scores > threshold)
+df_cleaned = df[(z_scores <= threshold).all(axis=1)]
+
+# Filling missing values
+df_cleaned['dropoff_latitude'].fillna(value=df_cleaned['dropoff_latitude'].mean(), inplace=True)
+df_cleaned['dropoff_longitude'].fillna(value=df_cleaned['dropoff_longitude'].mean(), inplace=True)
+
+
+plt.figure(figsize=(16,9))
+sns.boxplot(data=df_cleaned)
+
+
+corr = df.corr()
+print(corr)
+
+
+x = df[['pickup_longitude', 'pickup_latitude', 'dropoff_latitude']]
+y = df['fare_amount']
+
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, Y_train,Y_test = train_test_split(x,y,test_size=0.33)
+
+
+from sklearn.linear_model import LinearRegression
+regression = LinearRegression()
+
+
+regression.fit(X_train,Y_train)
+
+
+prediction = regression.predict(X_test)
+
+
+print(prediction)
+
+
+Y_test
+
+
+from sklearn.metrics import r2_score, mean_squared_error
+
+
+print(r2_score(Y_test,prediction))
+
+
+MSE = mean_squared_error(Y_test, prediction)
+print(MSE)
+
+
+print(np.sqrt(MSE))
+
+
+from sklearn.ensemble import RandomForestRegressor
+
+
+rf = RandomForestRegressor(n_estimators=100)
+
+
+rf.fit(X_train, Y_train)
+
+
+y_pred = rf.predict(X_test)
+print(y_pred)
+
+
+print(r2_score(Y_test, y_pred))
+
+
+mser = mean_squared_error(Y_test, y_pred)
+print(mser)
+
+
+print(np.sqrt(mser))
+
+
+
+
+
